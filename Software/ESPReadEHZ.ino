@@ -287,14 +287,14 @@ bool wifiFirstConnected = false;                                                
 byte inByte;                                                                          // Variable to buffer serial data byte-wise
 byte smlMessage[459];                                                                 // variable to hold complete SML-Message
 int smlIndex = 0;                                                                     // Variable to represent actual position in AML-Message
-int startIndex = 0;                                                                   // Variable to store Index of Start-Sequenz
-int stopIndex = 0;                                                                    // Variable to store Index of Stop-Sequenz
+int startIndex = 0;                                                                   // Variable to store Index of Start-Sequence
+int stopIndex = 0;                                                                    // Variable to store Index of Stop-Sequence
 int state = 0;                                                                        // State of State-Machine
 unsigned long LastTime = 0;                                                           // Variable to store last time of meassurement
 unsigned long CurrentTime = 0;                                                        // Variable to store current time
 String ausgabe;                                                                       // Variable for MQTT-Message
-const byte startSequence[] = { 0x1B, 0x1B, 0x1B, 0x1B, 0x01, 0x01, 0x01, 0x01 };      // Escape-Sequenz & Start-Message
-const byte stopSequence[]  = { 0x1B, 0x1B, 0x1B, 0x1B, 0x1A };                        // Escape-Sequenz & End-Message
+const byte startSequence[] = { 0x1B, 0x1B, 0x1B, 0x1B, 0x01, 0x01, 0x01, 0x01 };      // Escape-Sequence & Start-Message
+const byte stopSequence[]  = { 0x1B, 0x1B, 0x1B, 0x1B, 0x1A };                        // Escape-Sequence & End-Message
 byte SumPositiveActiveEnergy_lower[4];                                                // Lower 4 bytes of summe of positive active energy
 byte SumPositiveActiveEnergy_upper[4];                                                // Upper 4 bytes of summe of positive active energy
 byte T1_PositiveActiveEnergy_lower[4];                                                // Lower 4 bytes of positive active energy (Tarif 1)
@@ -551,19 +551,19 @@ void setup() {
 }
 
 // ##############################################################################################################################################################################
-// ### Routine to identify Start Sequenz in SML-Message #########################################################################################################################
+// ### Routine to identify Start Sequence in SML-Message #########################################################################################################################
 // ##############################################################################################################################################################################
-void FindStartSequenz() {
+void FindStartSequence() {
   while (Serial.available()) {                                                        // As long as serial data is avaliable
     inByte = Serial.read();                                                           // Read byte-wise
-    if (inByte == startSequence[startIndex]) {                                        // If bytes of Startsequenz are detected
+    if (inByte == startSequence[startIndex]) {                                        // If bytes of Startsequence are detected
       smlMessage[startIndex] = inByte;                                                // Write them into SML-Message Byte-Array
       startIndex++;
-      if (startIndex == sizeof(startSequence)) {                                      // If complete start sequenz was detected
+      if (startIndex == sizeof(startSequence)) {                                      // If complete start sequence was detected
         state = 1;                                                                    // Set State-Machine to State 1
         smlIndex = startIndex;                                                        // Set Index for message detection
         startIndex = 0;
-        Serial.println("Found Start-Sequenz, reading SML-Message...");
+        Serial.println("Found Start-Sequence, reading SML-Message...");
         break;
       }
     } else {
@@ -573,16 +573,16 @@ void FindStartSequenz() {
 }
 
 // ##############################################################################################################################################################################
-// ### Routine to identify End Sequenz in SML-Message ###########################################################################################################################
+// ### Routine to identify End Sequence in SML-Message ###########################################################################################################################
 // ##############################################################################################################################################################################
-void FindEndSequenz() {
+void FindEndSequence() {
   while (Serial.available()) {                                                        // As long as serial data is avaliable
     inByte = Serial.read();                                                           // Read byte-wise
     smlMessage[smlIndex] = inByte;                                                    // Write bytes into SML-Message Byte-Array
     smlIndex++;
-    if (inByte == stopSequence[stopIndex]) {                                          // Searching for Stop-Sequenz
+    if (inByte == stopSequence[stopIndex]) {                                          // Searching for Stop-Sequence
       stopIndex++;
-      if (stopIndex == sizeof(stopSequence)) {                                        // If complete Stop-Sequenz was found
+      if (stopIndex == sizeof(stopSequence)) {                                        // If complete Stop-Sequence was found
         state = 2;                                                                    // Set State-Machine to State 2
         stopIndex = 0;                                                                // After the stop sequence, ther are sill 3 bytes to come
         delay(30);                                                                    // Wait for the rest of the message
@@ -590,7 +590,7 @@ void FindEndSequenz() {
           smlMessage[smlIndex++] = Serial.read();
         }
         smlIndex--;
-        Serial.println("Found Stop-Sequenz!");
+        Serial.println("Found Stop-Sequence!");
       }
     } else {
       stopIndex = 0;
@@ -754,7 +754,7 @@ void WaitSomeTime() {
   if ((CurrentTime - LastTime) >= interval) {                                         // Wait interval-time until seting State-Machine to State 0
     LastTime = CurrentTime;
     state = 0;
-    Serial.println("Searching for Start-Sequenz...");
+    Serial.println("Searching for Start-Sequence...");
     consumption();
   }
 }
@@ -915,10 +915,10 @@ void loop() {
   ArduinoOTA.handle();                                                                // Start OTA-Handle
   switch (state) {                                                                    // State-Machine
     case 0:
-      FindStartSequenz();
+      FindStartSequence();
       break;
     case 1:
-      FindEndSequenz();
+      FindEndSequence();
       break;
     case 2:
       ReadData();
