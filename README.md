@@ -20,8 +20,9 @@ The software works as a statemachine. At firs the program try to find the Start-
 
 Protokol of SML-Message:
 
-| Data                    | Information           |
-|-------------------------|-----------------------|
+| Data | Information |
+|------|-------------|
 | 1b 1b 1b 1b 01 01 01 01 | Escape + StartMessage |
-| 76                      |                       |
-| 05 00 62 b7 a1          | transactionID (5Byte) |
+| 76 | |
+| 05 00 62 b7 a1 | transactionID (5Byte) |
+
