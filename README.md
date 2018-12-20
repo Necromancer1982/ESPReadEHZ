@@ -17,3 +17,10 @@ To receive this data, a simple SFH309 Phototransistor works in a grounded emitte
 **Software**
 
 The software works as a statemachine. At firs the program try to find the Start-Sequence (1B 1B 1B 1B 01 01 01 01) of the SML-Data. If this data is detected, the founded and also the following bytes will be stored until the End-Sequence (1B 1B 1B 1B 1A) will be detected. After that, the needed information (e.g. current power, positive/negative energy...) will be extracted, concentrated and sent via MQTT to the MQTT-Broker of my SmartHome-System.
+
+**Functions**
+
+- Information will be sent by MQTT-Messages in freely definable intervall
+- BuildIn Enduser Setup to configure WiFi
+- BuildIn NTP-Client to get actual Time
+- Calculating dayly, weekly, monthly and yearly consumption and also dayly, weekly, monthly and yearly accrued consumption and send this data via MQTT       
