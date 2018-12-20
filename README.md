@@ -19,6 +19,7 @@ To receive this data, a simple SFH309 Phototransistor works in a grounded emitte
 The software works as a statemachine. At firs the program try to find the Start-Sequence (1B 1B 1B 1B 01 01 01 01) of the SML-Data. If this data is detected, the founded and also the following bytes will be stored until the End-Sequence (1B 1B 1B 1B 1A) will be detected. After that, the needed information (e.g. current power, positive/negative energy...) will be extracted, concentrated and sent via MQTT to the MQTT-Broker of my SmartHome-System.
 
 Protokol of SML-Message:
+
 | Data                    | Information           |
 |-------------------------|-----------------------|
 | 1b 1b 1b 1b 01 01 01 01 | Escape + StartMessage |
