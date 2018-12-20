@@ -25,4 +25,60 @@ Protokol of SML-Message:
 | 1b 1b 1b 1b 01 01 01 01 | Escape + StartMessage |
 | 76 | |
 | 05 00 62 b7 a1 | transactionID (5Byte) |
+| 62 00 | groupNo |
+| 62 00 | abortOnError |
+| 72 | |
+| 63 01 01 | Message 0101 = SML_PublicOpen.Res |
+| 76 | |
+| 01 | codepage |
+| 01 | clientID |
+| 05 00 20 e7 df | reqFileID |
+| 09 xx xx xx xx xx xx xx xx | ServerID |
+| 01 | refTime |
+| 01 | smlVersion |
+| 63 de c8 | CRC |
+| 00 | SMLEndOfMessage |
+| 76 | |
+| 05 00 62 b7 a2 | transactionID (5Byte) |
+| 62 00 | groupNo |
+| 62 00 | abortOnError |
+| 72 | |
+| 63 07 01 | Message 0701 = SML_GetList.Res |
+| 77 | |
+| 01 | |
+| 09 xx xx xx xx xx xx xx xx | ServerID |
+| 07 | |
+| 01 | |
+| 00 62 0a ff ff | |
+| 72 | |
+| 62 01 | secIndex = 1 |
+| 65 00 33 5e dd 7d | Seconds-Index as unsigned 32 |
+| 77 | |
+| 07 81 81 c7 82 03 ff | objName 129-129:199.130.3 x 255 |
+| 01 | status (empty) |
+| 01 | valTime (empty) |
+| 01 | unit(empty) |
+| 01 | scaler (empty) |
+| 04 49 53 4b | Value |
+| 01 | valueSignature (empty) |
+| 77 | |
+| 07 01 00 00 00 09 ff | objName 1-0:0.0.9 x 255 |
+| 01 | status (empty) |
+| 01 | valTime (empty) |
+| 01 | unit(empty) |
+| 01 | scaler (empty) |
+| 09 xx xx xx xx xx xx xx xx | Server-ID:
+| 01 | |
+| 77 | |
+| 07 01 00 01 08 00 ff | objName 1-0:1.8.0 x 255 |
+| Positive summe of energy (A+) |
+| 65 00 | |
+| 01 | |
+| 01 | |
+| 82 01 | |
+| 62 1e | unit (unsigned8) 1E = Wh |
+| 52 ff | scaler (int8) -1 = x 10^-1 = /10 |
+| 59 00 00 00 00 00 37 00 e2 | value = 3604706 => 360470,6 = 360,47 kWh |
+| 01 | |
+| 77 | |
 
