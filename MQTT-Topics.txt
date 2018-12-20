@@ -1,0 +1,43 @@
+// #####################################################################################
+// ### MQTT-Topics:                                                                  ###
+// ###                                                                               ###
+// ###   [Topic]                                                                     ###
+// ###      |- Energy                                                                ###
+// ###      |  |--<< actual positive energy >>                                       ###
+// ###      |  |--<< actual negative energy >>                                       ###
+// ###      |  |- History                                                            ###
+// ###      |     |- Dayly                                                           ###
+// ###      |     |  |--<< positive energy of last day >>                            ###
+// ###      |     |  |--<< negative energy of last day >>                            ###
+// ###      |     |                                                                  ###
+// ###      |     |- Weekly                                                          ###
+// ###      |     |  |--<< positive energy of last week >>                           ###
+// ###      |     |  |--<< negative energy of last week >>                           ###
+// ###      |     |  |--<< positive accrued energy of last week >>                   ###
+// ###      |     |  |--<< negative accrued energy of last week >>                   ###
+// ###      |     |                                                                  ###
+// ###      |     |- Monthly                                                         ###
+// ###      |     |  |--<< positive energy of last month >>                          ###
+// ###      |     |  |--<< negative energy of last month >>                          ###
+// ###      |     |  |--<< positive accrued energy of last month >>                  ###
+// ###      |     |  |--<< negative accrued energy of last month >>                  ###
+// ###      |     |                                                                  ###
+// ###      |     |- Yearly                                                          ###
+// ###      |        |--<< positive energy of last year >>                           ###
+// ###      |        |--<< negative energy of last year >>                           ###
+// ###      |        |--<< positive accrued energy of last year >>                   ###
+// ###      |        |--<< negative accrued energy of last year >>                   ###
+// ###      |                                                                        ###
+// ###      |- Power                                                                 ###
+// ###         |- Sum                                                                ###
+// ###         |  |--<< actual power over all >>                                     ###
+// ###         |                                                                     ###
+// ###         |- L1                                                                 ###
+// ###         |  |--<< actual power L1 >>                                           ###
+// ###         |                                                                     ###
+// ###         |- L2                                                                 ###
+// ###         |  |--<< actual power L2 >>                                           ###
+// ###         |                                                                     ###
+// ###         |- L3                                                                 ###
+// ###            |--<< actual power L3 >>                                           ###
+// #####################################################################################
