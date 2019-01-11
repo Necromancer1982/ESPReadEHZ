@@ -5,6 +5,7 @@
 ###      |- Energy                                                                ###
 ###      |  |--<< actual positive energy >>                                       ###
 ###      |  |--<< actual negative energy >>                                       ###
+###      |  |--<< value without unit of actual positive energy (for database >>   ###
 ###      |  |- History                                                            ###
 ###      |     |- Dayly                                                           ###
 ###      |     |  |--<< positive energy of last day >>                            ###
@@ -29,6 +30,7 @@
 ###      |        |--<< negative accrued energy of last year >>                   ###
 ###      |                                                                        ###
 ###      |- Power                                                                 ###
+###         |--<< value without unit of actual power over all (for database) >>   ###
 ###         |- Sum                                                                ###
 ###         |  |--<< actual power over all >>                                     ###
 ###         |                                                                     ###
