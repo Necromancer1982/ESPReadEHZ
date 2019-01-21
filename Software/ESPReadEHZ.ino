@@ -219,7 +219,6 @@
 // ###      |- Energy                                                                ###
 // ###      |  |--<< actual positive energy >>                                       ###
 // ###      |  |--<< actual negative energy >>                                       ###
-// ###      |  |--<< value without unit of actual positive energy >>                 ###
 // ###      |  |- History                                                            ###
 // ###      |     |- Dayly                                                           ###
 // ###      |     |  |--<< positive energy of last day >>                            ###
@@ -244,7 +243,6 @@
 // ###      |        |--<< negative accrued energy of last year >>                   ###
 // ###      |                                                                        ###
 // ###      |- Power                                                                 ###
-// ###         |--<< value without unit of actual power over all >>                  ###
 // ###         |- Sum                                                                ###
 // ###         |  |--<< actual power over all >>                                     ###
 // ###         |                                                                     ###
@@ -385,7 +383,7 @@ void reconnect() {
 }
 
 // ##############################################################################################################################################################################
-// ### Callback for NTP-Sync Event ##############################################################################################################################################
+// ### Calback for NTP-Sync Event ###############################################################################################################################################
 // ##############################################################################################################################################################################
 void processSyncEvent (NTPSyncEvent_t ntpEvent) {                                     // Callback if NTP-Event happens
     if (ntpEvent) {                                                                   // If NTP-Error happens
@@ -435,26 +433,26 @@ double byte8 (byte arr_lower[], byte arr_upper[]) {
 String unit (double value) {
   String out;                                                                         // Define Variable to store output string
   if (value >= 1000000000000000) {                                                    // If Value >= 10^15
-    out = " EWh";                                                                     // Then unit => EWh
+    out = " EWh";                                                                      // Then unit => EWh
     goto ende;
   } 
   if (value >= 1000000000000) {                                                       // If Value >= 10^12
-    out = " PWh";                                                                     // Then unit => PWh
+    out = " PWh";                                                                      // Then unit => PWh
     goto ende;
   }
   if (value >= 1000000000) {                                                          // If Value >= 10^9
-    out = " TWh";                                                                     // Then unit => TWh
+    out = " TWh";                                                                      // Then unit => TWh
     goto ende;
   }
   if (value >= 1000000) {                                                             // If Value >= 10^6
-    out = " GWh";                                                                     // Then unit => GWh
+    out = " GWh";                                                                      // Then unit => GWh
     goto ende;
   }
   if (value >= 1000) {                                                                // If Value >= 10^3
-    out = " MWh";                                                                     // Then unit => MWh
+    out = " MWh";                                                                      // Then unit => MWh
     goto ende;
   }
-  out = " KWh";                                                                       // Else unit => KWh
+  out = " KWh";                                                                        // Else unit => KWh
   ende:
   return out;                                                                         // Return unit
 }
@@ -491,8 +489,12 @@ double DecimalPower (double value) {
 // ### Setup Routine ############################################################################################################################################################
 // ##############################################################################################################################################################################
 void setup() {
+// *** WiFi-Event Handler *******************************************************************************************************************************************************    
   static WiFiEventHandler e1;                                                         // Define WiFi-Handler
   e1 = WiFi.onStationModeGotIP (onSTAGotIP);                                          // As soon WiFi is connected, start NTP Client
+// *** Initialize EEPROM ********************************************************************************************************************************************************    
+  EEPROM.begin(512);
+  
 // *** Initialize status LED ****************************************************************************************************************************************************  
   pixels.begin();                                                                     // Initialize NeoPixel library.
   pixels.setPixelColor(0, pixels.Color(0, 0, 0));                                     // Status LED off
@@ -736,9 +738,9 @@ void ReadData() {
   Serial.println ("Negative Active Energy T1 : " + String(D_T1_NegativeActiveEnergy_sum) + Unit_T1_NegativeActiveEnergy);
   Serial.println ("Negative Active Energy T1 : " + String(D_T2_NegativeActiveEnergy_sum) + Unit_T2_NegativeActiveEnergy);
   Serial.println ("");
-  ausgabe = String(D_SumPositiveActiveEnergy_sum) + Unit_SumPositiveActiveEnergy;                       // Build strings to send to MQTT-Broker and send it
-  top = topic + "Energy/Pos";                                                                           // Built topic to sent message to
-  client.publish(top.c_str(), ausgabe.c_str());                                                         // Publish MQTT-Message
+  ausgabe = String(D_SumPositiveActiveEnergy_sum) + Unit_SumPositiveActiveEnergy;  // Build strings to send to MQTT-Broker and send it
+  top = topic + "Energy/Pos";                                                                             // Built topic to sent message to
+  client.publish(top.c_str(), ausgabe.c_str());                                                       // Publish MQTT-Message
   ausgabe = String(D_SumNegativeActiveEnergy_sum) + Unit_SumNegativeActiveEnergy;
   top = topic + "Energy/Neg";
 //  client.publish(top.c_str(), ausgabe.c_str());
@@ -765,45 +767,45 @@ void ReadData() {
   }
 
   EEPROM.get(10, D_PositiveEnergy_full_old_day);
-  double dayly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_day;                                   // Calculate weekly positive consumption for last week
-  ausgabe = String(DecimalPower(dayly_consumption_positive)) + String(unit(dayly_consumption_positive));                       // Build string to send via MQTT
+  double dayly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_day;                                                      // Calculate weekly positive consumption for last week
+  ausgabe = String(DecimalPower(dayly_consumption_positive)) + String(unit(dayly_consumption_positive));                     // Build string to send via MQTT
   top = topic + "Energy/History/Dayly/Accrued/Pos";
-  client.publish(top.c_str(), ausgabe.c_str());                                                                                // Publish string to MQTT
+  client.publish(top.c_str(), ausgabe.c_str());                                                                                                     // Publish string to MQTT
   EEPROM.get(20, D_NegativeEnergy_full_old_day);
-  double dayly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_day;                                   // Calculate weekly positive consumption for last week
-  ausgabe = String(DecimalPower(dayly_consumption_negative)) + String(unit(dayly_consumption_negative));                       // Build string to send via MQTT
+  double dayly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_day;                                                      // Calculate weekly positive consumption for last week
+  ausgabe = String(DecimalPower(dayly_consumption_negative)) + String(unit(dayly_consumption_negative));                     // Build string to send via MQTT
   top = topic + "Energy/HistoryDayly/Accrued/Neg";
-//  client.publish(top.c_str(), ausgabe.c_str());                                                                                // Publish string to MQTT
+//  client.publish(top.c_str(), ausgabe.c_str());                                                                                                     // Publish string to MQTT
   EEPROM.get(30, D_PositiveEnergy_full_old_week);
-  double weekly_consumption_positive_accrued = D_PositiveEnergy_full - D_PositiveEnergy_full_old_week;                         // Calculate accrued weekly positive consumption
+  double weekly_consumption_positive_accrued = D_PositiveEnergy_full - D_PositiveEnergy_full_old_week;                                                // Calculate accrued weekly positive consumption
   ausgabe = String(DecimalPower(weekly_consumption_positive_accrued)) + String(unit(weekly_consumption_positive_accrued));     // Build string to send via MQTT
   top = topic + "Energy/History/Weekly/Accrued/Pos";
-  client.publish(top.c_str(), ausgabe.c_str());                                                                                // Publish string to MQTT
+  client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
   EEPROM.get(40, D_NegativeEnergy_full_old_week);
-  double weekly_consumption_negative_accrued = D_NegativeEnergy_full - D_NegativeEnergy_full_old_week;                         // Calculate accrued weekly negative consumption
+  double weekly_consumption_negative_accrued = D_NegativeEnergy_full - D_NegativeEnergy_full_old_week;                                                // Calculate accrued weekly negative consumption
   ausgabe = String(DecimalPower(weekly_consumption_negative_accrued)) + String(unit(weekly_consumption_negative_accrued));     // Build string to send via MQTT
   top = topic + "Energy/History/Weekly/Accrued/Neg";
-//    client.publish(top.c_str(), ausgabe.c_str());                                                                              // Publish string to MQTT 
+//    client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT 
   EEPROM.get(50, D_PositiveEnergy_full_old_month);
-  double monthly_consumption_positive_accrued = D_PositiveEnergy_full - D_PositiveEnergy_full_old_month;                       // Calculate accrued monthly positive consumption
+  double monthly_consumption_positive_accrued = D_PositiveEnergy_full - D_PositiveEnergy_full_old_month;                                              // Calculate accrued monthly positive consumption
   ausgabe = String(DecimalPower(monthly_consumption_positive_accrued)) + String(unit(monthly_consumption_positive_accrued));   // Build string to send via MQTT
   top = topic + "Energy/History/Monthly/Accrued/Pos";
-  client.publish(top.c_str(), ausgabe.c_str());                                                                                // Publish string to MQTT
+  client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
   EEPROM.get(60, D_NegativeEnergy_full_old_month);
-  double monthly_consumption_negative_accrued = D_NegativeEnergy_full - D_NegativeEnergy_full_old_month;                       // Calculate accrued monthly negative consumption
+  double monthly_consumption_negative_accrued = D_NegativeEnergy_full - D_NegativeEnergy_full_old_month;                                              // Calculate accrued monthly negative consumption
   ausgabe = String(DecimalPower(monthly_consumption_negative_accrued)) + String(unit(monthly_consumption_negative_accrued));   // Build string to send via MQTT
   top = topic + "Energy/History/Monthly/Accrued/Neg";
-//    client.publish(top.c_str(), ausgabe.c_str());                                                                              // Publish string to MQTT
+//    client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
   EEPROM.get(70, D_PositiveEnergy_full_old_year);
-  double yearly_consumption_positive_accrued = D_PositiveEnergy_full - D_PositiveEnergy_full_old_year;                         // Calculate accrued yearly positive consumption
+  double yearly_consumption_positive_accrued = D_PositiveEnergy_full - D_PositiveEnergy_full_old_year;                                                // Calculate accrued yearly positive consumption
   ausgabe = String(DecimalPower(yearly_consumption_positive_accrued)) + String(unit(yearly_consumption_positive_accrued));     // Build string to send via MQTT
   top = topic + "Energy/History/Yearly/Accrued/Pos";
-  client.publish(top.c_str(), ausgabe.c_str());                                                                                // Publish string to MQTT
+  client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
   EEPROM.get(80, D_NegativeEnergy_full_old_year);
-  double yearly_consumption_negative_accrued = D_NegativeEnergy_full - D_NegativeEnergy_full_old_year;                         // Calculate accrued yearly negative consumption
+  double yearly_consumption_negative_accrued = D_NegativeEnergy_full - D_NegativeEnergy_full_old_year;                                                // Calculate accrued yearly negative consumption
   ausgabe = String(DecimalPower(yearly_consumption_negative_accrued)) + String(unit(yearly_consumption_negative_accrued));     // Build string to send via MQTT
   top = topic + "Energy/History/Yearly/Accrued/Neg";
-//    client.publish(top.c_str(), ausgabe.c_str());                                                                              // Publish string to MQTT
+//    client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
 
   consumption();
   state = 3;                                                                          // Set State-Machine to State 3
@@ -831,127 +833,134 @@ void WaitSomeTime() {
 // ##############################################################################################################################################################################
 void EEPROMInit() {
   top = topic + "Status";
-  client.publish(top.c_str(), "EEPROM: Value initialisazion");                        // Publish string to MQTT
-  D_PositiveEnergy_full_old_day = D_PositiveEnergy_full;                              // Store actual values to calculate next value
+  client.publish(top.c_str(), "EEPROM: Value initialisazion");                                                                                      // Publish string to MQTT
+  D_PositiveEnergy_full_old_day = D_PositiveEnergy_full;                                                                                            // Store actual values to calculate next value
   EEPROM.put(10, D_PositiveEnergy_full_old_day);
-  D_NegativeEnergy_full_old_day = D_NegativeEnergy_full;                              // Store actual values to calculate next value
+  D_NegativeEnergy_full_old_day = D_NegativeEnergy_full;                                                                                            // Store actual values to calculate next value
   EEPROM.put(20, D_NegativeEnergy_full_old_day);
-  D_PositiveEnergy_full_old_week = D_PositiveEnergy_full;                             // Store actual values to calculate next value
+  D_PositiveEnergy_full_old_week = D_PositiveEnergy_full;                                                                                           // Store actual values to calculate next value
   EEPROM.put(30, D_PositiveEnergy_full_old_week);
-  D_NegativeEnergy_full_old_week = D_NegativeEnergy_full;                             // Store actual values to calculate next value
+  D_NegativeEnergy_full_old_week = D_NegativeEnergy_full;                                                                                           // Store actual values to calculate next value
   EEPROM.put(40, D_NegativeEnergy_full_old_week);
-  D_PositiveEnergy_full_old_month = D_PositiveEnergy_full;                            // Store actual values to calculate next value
+  D_PositiveEnergy_full_old_month = D_PositiveEnergy_full;                                                                                          // Store actual values to calculate next value
   EEPROM.put(50, D_PositiveEnergy_full_old_month);
-  D_NegativeEnergy_full_old_month = D_NegativeEnergy_full;                            // Store actual values to calculate next value
+  D_NegativeEnergy_full_old_month = D_NegativeEnergy_full;                                                                                          // Store actual values to calculate next value
   EEPROM.put(60, D_NegativeEnergy_full_old_month);
-  D_PositiveEnergy_full_old_year = D_PositiveEnergy_full;                             // Store actual values to calculate next value
+  D_PositiveEnergy_full_old_year = D_PositiveEnergy_full;                                                                                         // Store actual values to calculate next value
   EEPROM.put(70, D_PositiveEnergy_full_old_year);
-  D_NegativeEnergy_full_old_year = D_NegativeEnergy_full;                             // Store actual values to calculate next value
+  D_NegativeEnergy_full_old_year = D_NegativeEnergy_full;                                                                                         // Store actual values to calculate next value
   EEPROM.put(80, D_NegativeEnergy_full_old_year);
+  EEPROM.commit();
   top = topic + "Energy/History/Dayly/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Dayly/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Weekly/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Weekly/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Monthly/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Monthly/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Yearly/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Yearly/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                       // Publish string to MQTT
   top = topic + "Energy/History/Weekly/Accrued/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                     // Publish string to MQTT
   top = topic + "Energy/History/Weekly/Accrued/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                     // Publish string to MQTT
   top = topic + "Energy/History/Monthly/Accrued/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                     // Publish string to MQTT
   top = topic + "Energy/History/Monthly/Accrued/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                     // Publish string to MQTT
   top = topic + "Energy/History/Yearly/Accrued/Pos";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT
+  client.publish(top.c_str(), "0 KWh");                                                                                                   // Publish string to MQTT
   top = topic + "Energy/History/Yearly/Accrued/Neg";
-  client.publish(top.c_str(), "0 KWh");                                               // Publish string to MQTT  
+  client.publish(top.c_str(), "0 KWh");                                                                                                   // Publish string to MQTT  
 }
 
 // ##############################################################################################################################################################################
 // ### Routine to get summe consumption values (day, week, month, year) #########################################################################################################
 // ##############################################################################################################################################################################
 void consumption() {
-  if ((hour() == 00) && (minute() == 00) && (consumption_calculated == false)) {                                  // Every Midnight, but only once:
-    consumption_calculated = true;                                                                                // Flag for doing only once
+  if ((hour() == 00) && (minute() == 00) && (consumption_calculated == false)) {                                                                          // Every Midnight, but only once:
+    consumption_calculated = true;                                                                                                                      // Flag for doing only once
     EEPROM.get(10, D_PositiveEnergy_full_old_day);
-    double dayly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_day;                    // Calculate dayly positive consumption for last day
-    ausgabe = String(DecimalPower(dayly_consumption_positive)) + String(unit(dayly_consumption_positive));        // Build string to send via MQTT
+    double dayly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_day;                                                          // Calculate dayly positive consumption for last day
+    ausgabe = String(DecimalPower(dayly_consumption_positive)) + String(unit(dayly_consumption_positive));                         // Build string to send via MQTT
     top = topic + "Energy/History/Dayly/Pos";
-    client.publish(top.c_str(), ausgabe.c_str());                                                                 // Publish string to MQTT
-    ausgabe = String(dayly_consumption_positive);                                                                 // Build string to send via MQTT
+    client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
+
+    ausgabe = String(dayly_consumption_positive);
     top = topic + "Energy/Val";
-    client.publish(top.c_str(), ausgabe.c_str());                                                                 // Publish string to MQTT
+    client.publish(top.c_str(), ausgabe.c_str());
+    
     EEPROM.get(20, D_NegativeEnergy_full_old_day);
-    double dayly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_day;                    // Calculate dayly negative consumption for last day
-    ausgabe = String(DecimalPower(dayly_consumption_negative)) + String(unit(dayly_consumption_negative));        // Build string to send via MQTT
+    double dayly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_day;                                                          // Calculate dayly negative consumption for last day
+    ausgabe = String(DecimalPower(dayly_consumption_negative)) + String(unit(dayly_consumption_negative));                         // Build string to send via MQTT
     top = topic + "Energy/History/Dayly/Neg";
-//    client.publish(top.c_str(), ausgabe.c_str());                                                                 // Publish string to MQTT
-    D_PositiveEnergy_full_old_day = D_PositiveEnergy_full;                                                        // Store actual values to calculate next value
+//    client.publish(top.c_str(), ausgabe.c_str());                                                                                                       // Publish string to MQTT
+    D_PositiveEnergy_full_old_day = D_PositiveEnergy_full;                                                                                              // Store actual values to calculate next value
     EEPROM.put(10, D_PositiveEnergy_full_old_day);
-    D_NegativeEnergy_full_old_day = D_NegativeEnergy_full;                                                        // Store actual values to calculate next value
+    D_NegativeEnergy_full_old_day = D_NegativeEnergy_full;                                                                                              // Store actual values to calculate next value
     EEPROM.put(20, D_NegativeEnergy_full_old_day);
-    if (weekday() == 2) {                                                                                         // Every Monday 00:00:
+    EEPROM.commit();
+    if (weekday() == 2) {                                                                                                                               // Every Monday 00:00:
       EEPROM.get(30, D_PositiveEnergy_full_old_week);
-      double weekly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_week;                // Calculate weekly positive consumption for last week
-      ausgabe = String(DecimalPower(weekly_consumption_positive)) + String(unit(weekly_consumption_positive));    // Build string to send via MQTT
+      double weekly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_week;                                                      // Calculate weekly positive consumption for last week
+      ausgabe = String(DecimalPower(weekly_consumption_positive)) + String(unit(weekly_consumption_positive));                     // Build string to send via MQTT
       top = topic + "Energy/History/Weekly/Pos";
-      client.publish(top.c_str(), ausgabe.c_str());                                                               // Publish string to MQTT
+      client.publish(top.c_str(), ausgabe.c_str());                                                                                                     // Publish string to MQTT
       EEPROM.get(40, D_NegativeEnergy_full_old_week);
-      double weekly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_week;                // Calculate weekly negative consumption for last week
+      double weekly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_week;                                                      // Calculate weekly negative consumption for last week
       ausgabe = String(DecimalPower(weekly_consumption_negative)) + String(unit(weekly_consumption_negative));                     // Build string to send via MQTT
       top = topic + "Energy/History/Weekly/Neg";
-//      client.publish(top.c_str(), ausgabe.c_str());                                                               // Publish string to MQTT
-      D_PositiveEnergy_full_old_week = D_PositiveEnergy_full;                                                     // Store actual values to calculate next value
+//      client.publish(top.c_str(), ausgabe.c_str());                                                                                                     // Publish string to MQTT
+      D_PositiveEnergy_full_old_week = D_PositiveEnergy_full;                                                                                           // Store actual values to calculate next value
       EEPROM.put(30, D_PositiveEnergy_full_old_week);
-      D_NegativeEnergy_full_old_week = D_NegativeEnergy_full;                                                     // Store actual values to calculate next value
+      D_NegativeEnergy_full_old_week = D_NegativeEnergy_full;                                                                                           // Store actual values to calculate next value
       EEPROM.put(40, D_NegativeEnergy_full_old_week);
+      EEPROM.commit();
     }
-    if (day() == 1) {                                                                                             // Every 1st of month 00:00:
+    if (day() == 1) {                                                                                                                                   // Every 1st of month 00:00:
       EEPROM.get(50, D_PositiveEnergy_full_old_month);
-      double monthly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_month;              // Calculate monthly positive consumption for last month
-      ausgabe = String(DecimalPower(monthly_consumption_positive)) + String(unit(monthly_consumption_positive));  // Build string to send via MQTT
+      double monthly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_month;                                                    // Calculate monthly positive consumption for last month
+      ausgabe = String(DecimalPower(monthly_consumption_positive)) + String(unit(monthly_consumption_positive));                   // Build string to send via MQTT
       top = topic + "Energy/History/Monthly/Pos";
-      client.publish(top.c_str(), ausgabe.c_str());                                                               // Publish string to MQTT
+      client.publish(top.c_str(), ausgabe.c_str());                                                                                                     // Publish string to MQTT
       EEPROM.get(60, D_NegativeEnergy_full_old_month);
-      double monthly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_month;              // Calculate monthly negative consumption for last month
-      ausgabe = String(DecimalPower(monthly_consumption_negative)) + String(unit(monthly_consumption_negative));  // Build string to send via MQTT
+      double monthly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_month;                                                    // Calculate monthly negative consumption for last month
+      ausgabe = String(DecimalPower(monthly_consumption_negative)) + String(unit(monthly_consumption_negative));                   // Build string to send via MQTT
       top = topic + "Energy/History/Monthly/Neg";
-//      client.publish(top.c_str(), ausgabe.c_str());                                                               // Publish string to MQTT
-      D_PositiveEnergy_full_old_month = D_PositiveEnergy_full;                                                    // Store actual values to calculate next value
+//      client.publish(top.c_str(), ausgabe.c_str());                                                                                                     // Publish string to MQTT
+      D_PositiveEnergy_full_old_month = D_PositiveEnergy_full;                                                                                          // Store actual values to calculate next value
       EEPROM.put(50, D_PositiveEnergy_full_old_month);
-      D_NegativeEnergy_full_old_month = D_NegativeEnergy_full;                                                    // Store actual values to calculate next value
+      D_NegativeEnergy_full_old_month = D_NegativeEnergy_full;                                                                                          // Store actual values to calculate next value
       EEPROM.put(60, D_NegativeEnergy_full_old_month);
-      if (month() == 1) {                                                                                         // Every 1st January 00:00:
+      EEPROM.commit();
+      if (month() == 1) {                                                                                                                               // Every 1st January 00:00:
         EEPROM.get(70, D_PositiveEnergy_full_old_year);
-        double yearly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_year;              // Calculate yearly positive consumption for last year
-        ausgabe = String(DecimalPower(yearly_consumption_positive)) + String(unit(yearly_consumption_positive));  // Build string to send via MQTT
+        double yearly_consumption_positive = D_PositiveEnergy_full - D_PositiveEnergy_full_old_year;                                                    // Calculate yearly positive consumption for last year
+        ausgabe = String(DecimalPower(yearly_consumption_positive)) + String(unit(yearly_consumption_positive));                   // Build string to send via MQTT
         top = topic + "Energy/History/Yearly/Pos";
-        client.publish(top.c_str(), ausgabe.c_str());                                                             // Publish string to MQTT
+        client.publish(top.c_str(), ausgabe.c_str());                                                                                                   // Publish string to MQTT
         EEPROM.get(80, D_NegativeEnergy_full_old_year);
-        double yearly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_year;              // Calculate yearly negative consumption for last year
-        ausgabe = String(DecimalPower(yearly_consumption_negative)) + String(unit(yearly_consumption_negative));  // Build string to send via MQTT
+        double yearly_consumption_negative = D_NegativeEnergy_full - D_NegativeEnergy_full_old_year;                                                    // Calculate yearly negative consumption for last year
+        ausgabe = String(DecimalPower(yearly_consumption_negative)) + String(unit(yearly_consumption_negative));                   // Build string to send via MQTT
         top = topic + "Energy/History/Yearly/Neg";
-//        client.publish(top.c_str(), ausgabe.c_str());                                                             // Publish string to MQTT
-        D_PositiveEnergy_full_old_year = D_PositiveEnergy_full;                                                   // Store actual values to calculate next value
+//        client.publish(top.c_str(), ausgabe.c_str());                                                                                                   // Publish string to MQTT
+        D_PositiveEnergy_full_old_year = D_PositiveEnergy_full;                                                                                         // Store actual values to calculate next value
         EEPROM.put(70, D_PositiveEnergy_full_old_year);
-        D_NegativeEnergy_full_old_year = D_NegativeEnergy_full;                                                   // Store actual values to calculate next value
+        D_NegativeEnergy_full_old_year = D_NegativeEnergy_full;                                                                                         // Store actual values to calculate next value
         EEPROM.put(80, D_NegativeEnergy_full_old_year);
+        EEPROM.commit();
       }
     }
-  } else {                                                                                                        // If actual time != 00:00
+  } else {                                                                                                                                              // If actual time != 00:00
     if ((consumption_calculated == true) && (hour() == 00) & (minute() == 1)) {
-          consumption_calculated = false;                                                                         // Reset flag => new calculation possible
+          consumption_calculated = false;                                                                                                                     // Reset flag => new calculation possible
     }
   }
 }
